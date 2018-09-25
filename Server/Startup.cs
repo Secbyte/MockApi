@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+#pragma warning disable CA1822 // Members that do not access instance data can be marked as static
 namespace SecByte.MockApi.Server
 {
     public class Startup
@@ -39,7 +40,7 @@ namespace SecByte.MockApi.Server
                 context.Response.Headers.Add("content-type", "application/json; charset=utf-8");
                 context.Response.Headers.Add("access-control-allow-origin", "*");
                 await context.Response.WriteAsync(response.Content);
-			});
+            });
         }
     }
 }

@@ -11,7 +11,7 @@ namespace SecByte.MockApi.Server.Handlers
         {
             var targetMethod = new HttpMethod(path.GetSegment(1));
             var statusCode = 200;
-            var requestPath = "/" + path.FromSegment(2);
+            var requestPath = string.Concat("/", path.FromSegment(2));
             var possibleStatusSegment = path.GetSegment(2);
 
             if (Regex.IsMatch(possibleStatusSegment, @"[1-5]\d{2}") )

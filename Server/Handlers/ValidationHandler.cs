@@ -9,7 +9,7 @@ namespace SecByte.MockApi.Server.Handlers
         public (int, string) ProcessRequest(string method, PathString path, string bodyText)
         {
             var requestMethod = new HttpMethod(path.GetSegment(1));
-            var requestPath = "/" + path.FromSegment(2);
+            var requestPath = string.Concat("/", path.FromSegment(2));
             var routeSetup = DataCache.RouteSetups.SingleOrDefault(r => r.Path == requestPath && r.Method == requestMethod);
 
             if (routeSetup != null)

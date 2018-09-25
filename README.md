@@ -17,8 +17,10 @@ docker run --rm -d -p:5678:80 mockapi
 
 To setup a response for a given path, post a request to the path with a body containing the required response. The POST request must have the following headers
 
-MockApi-Action=Setup
-MockApi-Method=GET|POST|PATCH|DELETE|HEAD|...
+```
+MockApi-Action: Setup
+MockApi-Method: GET|POST|PATCH|DELETE|HEAD|...
+```
 
 For example the following HTTP Request will setup the response for GET /myapi/myresource/1
 
@@ -38,8 +40,10 @@ Once set up calls to that path will respond with the designated payload
 
 You can retrieve information about the calls made to an endpoint you have setup by making a GET request to the path with the following http headers
 
-MockApi-Action=Setup
-MockApi-Method=GET|POST|PATCH|DELETE|HEAD|...
+```
+MockApi-Action: Validate
+MockApi-Method: GET|POST|PATCH|DELETE|HEAD|...
+```
 
 For example the following HTTP request will retieve the call details for the response setup in the step above
 
@@ -74,19 +78,19 @@ e.g.
 
 An endpoint can use placeholders to match a group of endpoints based on variable parameters. Place holders are identified by curly braces. For example setting up a response for the following URI
 
-/myapi/contacts/{id}
+* /myapi/contacts/{id}
 
 Will match requests
 
-/myapi/contacts/12
-/myapi/contacts/alpha
+* /myapi/contacts/12
+* /myapi/contacts/alpha
 
 This allows a single setup to setup a response to a web api route
 
 Routes are matched by specificity, with a more specific match being preferred to a less specific one. This means that is two mock end point are setup as follows
 
-/myapi/contacts/{id}
-/myapi/contacts/details
+* /myapi/contacts/{id}
+* /myapi/contacts/details
 
 Then calls to
 

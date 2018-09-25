@@ -2,18 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace SecByte.MockApi.Server
 {
     public class RouteSetup
     {
         private readonly HttpMethod _method;
-        private readonly string _path;
+        private readonly PathString _path;
         private readonly string _response;
         private readonly int _status;
         private readonly List<(string path, string request)> _requests;
 
-        public RouteSetup(HttpMethod method, string path, string response, int status)
+        public RouteSetup(HttpMethod method, PathString path, string response, int status)
         {
             _method = method;
             _path = path;
@@ -37,14 +38,12 @@ namespace SecByte.MockApi.Server
             _requests.Add((path, request));
         }
 
-        public RouteMatch MatchesOn(HttpMethod method, string requestPath)
+        public RouteMatch MatchesOn(HttpMethod method, PathString requestPath)
         {
-            Console.WriteLine(method + " = " + _method);
-
             if (method == _method)
             {
-                var routeParts = _path.Split('/');
-                var requestParts = requestPath.Split('/');
+                var routeParts = _path.GetSegments();
+                var requestParts = requestPath.GetSegments();
                 var wildcards = new Dictionary<string, string>();
 
                 if (routeParts.Length == requestParts.Length)

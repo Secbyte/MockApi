@@ -1,15 +1,16 @@
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace SecByte.MockApi.Server.Handlers
 {
     internal class ValidationHandler : IRequestHandler
     {
-        public (int, string) ProcessRequest(string method, PathString path, string bodyText)
+        public Task<MockApiResponse> ProcessRequest(HttpRequest request)
         {
-            var requestMethod = new HttpMethod(path.GetSegment(1));
-            var requestPath = string.Concat("/", path.FromSegment(2));
+            var requestMethod = request.GetMockApiMethod();
+            var requestPath = request.Path;
             var routeSetup = DataCache.RouteSetups.SingleOrDefault(r => r.Path == requestPath && r.Method == requestMethod);
 
             if (routeSetup != null)
@@ -24,10 +25,19 @@ namespace SecByte.MockApi.Server.Handlers
                     })
                 };
 
-                return (200, Newtonsoft.Json.JsonConvert.SerializeObject(responseObject));
+                return Task.FromResult(new MockApiResponse
+                {
+                    StatusCode = 200,
+                    Payload = Newtonsoft.Json.JsonConvert.SerializeObject(responseObject),
+                    ContentType = "application/json"
+                });
             }
 
-            return (404, "Method not found");
+            return Task.FromResult(new MockApiResponse
+            {
+                StatusCode = 404,
+                Payload = "Path not setup"
+            });
         }
     }
 }

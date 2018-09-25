@@ -1,10 +1,11 @@
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace SecByte.MockApi.Server.Handlers
 {
     internal interface IRequestHandler
     {
-        (int Status, string Content) ProcessRequest(string method, PathString path, string bodyText);
+        Task<MockApiResponse> ProcessRequest(HttpRequest request);
     }
 }

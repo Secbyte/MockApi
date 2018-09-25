@@ -24,22 +24,12 @@ namespace SecByte.MockApi.Server
 
             app.Run(async (context) =>
             {
-                var path = context.Request.Path;
-                var bodyAsText = string.Empty;
-
-                if (context.Request.ContentLength.GetValueOrDefault() > 0)
-                {
-                    var buffer = new byte[(int)context.Request.ContentLength];
-                    await context.Request.Body.ReadAsync(buffer, 0, buffer.Length);
-                    bodyAsText = Encoding.UTF8.GetString(buffer);
-                }
-
-                var handler = Handlers.HandlerFactory.GetHandler(path);
-                var response = handler.ProcessRequest(context.Request.Method, path, bodyAsText);
-                context.Response.StatusCode = response.Status;
-                context.Response.Headers.Add("content-type", "application/json; charset=utf-8");
+                var handler = Handlers.HandlerFactory.GetHandler(context.Request.GetMockApiAction());
+                var response = await handler.ProcessRequest(context.Request);
+                context.Response.StatusCode = response.StatusCode;
+                context.Response.Headers.Add("content-type", response.ContentType);
                 context.Response.Headers.Add("access-control-allow-origin", "*");
-                await context.Response.WriteAsync(response.Content);
+                await context.Response.WriteAsync(response.Payload);
             });
         }
     }

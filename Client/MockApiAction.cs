@@ -22,10 +22,13 @@ namespace SecByte.MockApi.Client
 
         public async Task Returns(int statusCode, string document)
         {
-            var uri = $"{_host}/_setup/{_method}/{statusCode}/{_path}";
+            var uri = $"{_host}/{_path}";
 
             using (var client = new HttpClient())
-            {
+            {                
+                client.DefaultRequestHeaders.Add("MockApi-Action", "Setup");
+                client.DefaultRequestHeaders.Add("MockApi-Method", _method);
+                client.DefaultRequestHeaders.Add("MockApi-Status", statusCode.ToString());
                 var response = await client.PostAsync(uri, new StringContent(document, Encoding.UTF8, "application/json"));
                 response.EnsureSuccessStatusCode();
             }

@@ -25,10 +25,13 @@ namespace SecByte.MockApi.Client
 
         public async Task<IEnumerable<CallDetails>> Calls(string method, string path)
         {
-            var uri = $"{_mockApiHost}/_validate/{method}/{path}";
+            var uri = $"{_mockApiHost}/{path}";
 
             using (var client = new HttpClient())
             {
+                client.DefaultRequestHeaders.Add("MockApi-Action", "Validate");
+                client.DefaultRequestHeaders.Add("MockApi-Method", method);
+
                 var response = await client.GetAsync(uri);
                 response.EnsureSuccessStatusCode();
 

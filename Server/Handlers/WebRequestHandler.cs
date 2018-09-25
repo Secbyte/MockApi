@@ -1,26 +1,36 @@
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace SecByte.MockApi.Server.Handlers
 {
     public class WebRequestHandler : IRequestHandler
     {
-        public (int, string) ProcessRequest(string method, PathString path, string bodyText)
+        public async Task<MockApiResponse> ProcessRequest(HttpRequest request)
         {
-            var requestMethod = new HttpMethod(method);
             var routeMatch = DataCache.RouteSetups
-                            .Select(r => r.MatchesOn(requestMethod, path))
+                            .Select(r => r.MatchesOn( new HttpMethod(request.Method), request.Path))
                             .OrderBy(r => r.WildcardCount)
                             .FirstOrDefault(rm => rm.Success);
 
             if (routeMatch != null)
             {
-                routeMatch.Setup.LogRequest(path, bodyText);
-                return (routeMatch.Setup.StatusCode, routeMatch.GetResponse(bodyText));
+                var bodyText = await request.GetBodyAsText();
+                routeMatch.Setup.LogRequest(request.Path, bodyText);
+                return new MockApiResponse
+                {
+                    StatusCode = routeMatch.Setup.StatusCode,
+                    Payload = routeMatch.GetResponse(bodyText),
+                    ContentType = "application/json; charset=utf-8"
+                };
             }
 
-            return (404, string.Empty);
+            return new MockApiResponse
+            {
+                StatusCode = 404,
+                Payload = "Method not set up"
+            };
         }
     }
 }

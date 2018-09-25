@@ -5,17 +5,18 @@ namespace SecByte.MockApi.Server.Handlers
 {
     internal static class HandlerFactory
     {
-        public static IRequestHandler GetHandler(PathString path)
+        public static IRequestHandler GetHandler(MockApiAction action)
         {
-            var routeStart = path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
-            switch (routeStart)
+            switch (action)
             {
-                case "_setup":
+                case MockApiAction.Setup:
                     return new SetupHandler();
-                case "_validate":
+                case MockApiAction.Validate:
                     return new ValidationHandler();
-                default:
+                case MockApiAction.Call:
                     return new WebRequestHandler();
+                default:
+                    throw new NotSupportedException("Unsupported action type");
             }
         }
     }

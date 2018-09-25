@@ -1,0 +1,7 @@
+FROM microsoft/aspnetcore
+LABEL name="MockApi"
+ENTRYPOINT ["dotnet", "MockApi.Server.dll"]
+ARG source=bin/Release/netcoreapp2.0/publish
+WORKDIR /app
+EXPOSE 80
+COPY $source .

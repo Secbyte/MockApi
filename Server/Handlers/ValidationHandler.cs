@@ -11,7 +11,7 @@ namespace SecByte.MockApi.Server.Handlers
         {
             var requestMethod = request.GetMockApiMethod();
             var requestPath = request.Path;
-            var routeSetup = DataCache.RouteSetups.SingleOrDefault(r => r.Path == requestPath && r.Method == requestMethod);
+            var routeSetup = RouteCache.GetRouteSteup(requestMethod, requestPath);
 
             if (routeSetup != null)
             {

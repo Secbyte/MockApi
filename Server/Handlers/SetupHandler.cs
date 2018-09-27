@@ -15,8 +15,7 @@ namespace SecByte.MockApi.Server.Handlers
             var statusCode = request.GetMockApiStatus();
             var bodyAsText = await request.GetBodyAsText();
 
-            DataCache.RouteSetups.RemoveAll(r => r.Path == path && r.Method == method);
-            DataCache.RouteSetups.Add(new RouteSetup(method, path, bodyAsText, statusCode));
+            RouteCache.RegisterRouteSteup(method, path, bodyAsText, statusCode);
 
             return new MockApiResponse
             {

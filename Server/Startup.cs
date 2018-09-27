@@ -22,6 +22,11 @@ namespace SecByte.MockApi.Server
                 app.UseDeveloperExceptionPage();
             }
 
+            if (System.IO.File.Exists("config/setup.json"))
+            {
+                RouteCache.LoadRoutes("config/setup.json");
+            }
+
             app.Run(async (context) =>
             {
                 var handler = Handlers.HandlerFactory.GetHandler(context.Request.GetMockApiAction());

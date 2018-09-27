@@ -9,7 +9,7 @@ namespace SecByte.MockApi.Server
     {
         public static string[] GetSegments(this PathString pathString)
         {
-            return pathString.Value.Split("/", StringSplitOptions.RemoveEmptyEntries);            
-        }       
+            return pathString.Value.Split("/", StringSplitOptions.RemoveEmptyEntries);
+        }
     }
 }

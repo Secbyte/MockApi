@@ -11,13 +11,14 @@ namespace SecByte.MockApi.Server
 
         public static void LoadRoutes(string setupFile)
         {
-            var routes = Newtonsoft.Json.JsonConvert.DeserializeObject<RouteSetupInfo[]>(System.IO.File.ReadAllText(setupFile));
-            foreach (var route in routes)
-            {
-                var method = new HttpMethod(route.Method);
-                var response = route.Response.ToString();
-                RegisterRouteSteup(method, route.Path, response, route.Status);
-            }
+            var routesDocument = System.IO.File.ReadAllText(setupFile);
+            LoadRoutesFromJson(routesDocument);
+        }
+
+        public static void LoadRoutesFromJson(string routesDocument)
+        {
+            var routes = Newtonsoft.Json.JsonConvert.DeserializeObject<RouteSetupInfo[]>(routesDocument);
+            RegisterRoutes(routes);
         }
 
         public static void RegisterRouteSteup(HttpMethod method, PathString path, string response, int statusCode)
@@ -36,6 +37,16 @@ namespace SecByte.MockApi.Server
             return _routeSetups.Select(r => r.MatchesOn(method, path))
                     .OrderBy(r => r.WildcardCount)
                     .FirstOrDefault(rm => rm.Success);
+        }
+
+        private static void RegisterRoutes(RouteSetupInfo[] routes)
+        {
+            foreach (var route in routes)
+            {
+                var method = new HttpMethod(route.Method);
+                var response = route.Response.ToString();
+                RegisterRouteSteup(method, route.Path, response, route.Status);
+            }
         }
     }
 }

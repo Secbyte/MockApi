@@ -15,6 +15,8 @@ namespace SecByte.MockApi.Server.Handlers
                     return new ValidationHandler();
                 case MockApiAction.Call:
                     return new WebRequestHandler();
+                case MockApiAction.BulkSetup:
+                    return new BulkSetupHandler();
                 default:
                     throw new NotSupportedException("Unsupported action type");
             }

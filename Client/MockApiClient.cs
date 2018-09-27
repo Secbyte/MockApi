@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace SecByte.MockApi.Client
 {
@@ -16,6 +18,26 @@ namespace SecByte.MockApi.Client
         public MockApiClient(string mockApiHost)
         {
             _mockApiHost = mockApiHost;
+        }
+
+        public async Task SetupFromFile(string filePath)
+        {
+            if(!System.IO.File.Exists(filePath))
+            {
+                throw new System.IO.FileNotFoundException(filePath);
+            }
+
+            await SetupFromJson(File.ReadAllText(filePath));
+        }
+
+        public async Task SetupFromJson(string routesDocument)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("MockApi-Action", "BulkSetup");
+                var response = await client.PostAsync(_mockApiHost, new StringContent(routesDocument, Encoding.UTF8, "application/json"));
+                response.EnsureSuccessStatusCode();
+            }
         }
 
         public MockApiAction Setup(string method, string path)

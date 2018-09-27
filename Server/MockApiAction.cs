@@ -4,6 +4,7 @@ namespace SecByte.MockApi.Server
     {
         Call,
         Setup,
-        Validate
+        Validate,
+        BulkSetup
     }
 }

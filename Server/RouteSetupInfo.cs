@@ -10,6 +10,6 @@ namespace SecByte.MockApi.Server
 
         public string Method { get; set; }
 
-        public JObject Response { get; set; }
+        public object Response { get; set; }
     }
 }

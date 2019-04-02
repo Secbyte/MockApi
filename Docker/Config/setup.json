@@ -1,0 +1,21 @@
+[
+    {
+        "Path": "/clinical/get-records",
+        "Method": "GET",
+        "Status": 200,
+        "Response": [
+            {
+                "__Template": "Observation",
+                "Count": 4 
+            },
+            {
+                "__Template": "Problem",
+                "Count": 6
+            },
+            {
+                "Type": "Normal",
+                "Weight": 42
+            }
+        ]        
+    }
+]

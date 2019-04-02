@@ -1,0 +1,10 @@
+{
+    "Observation": {
+        "PersonId": "emis:person:1234",
+        "RecordId": "obs:5678"
+    },
+    "Problem": {
+        "PersonId": "emis:person:1234",
+        "RecordId": "prob:9876"
+    }
+}

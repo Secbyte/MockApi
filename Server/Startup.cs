@@ -24,6 +24,7 @@ namespace SecByte.MockApi.Server
 
             if (System.IO.File.Exists("config/setup.json"))
             {
+                Console.WriteLine("Found config file");
                 RouteCache.LoadRoutes("config/setup.json");
             }
 

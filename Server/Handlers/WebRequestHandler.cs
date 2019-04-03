@@ -9,7 +9,7 @@ namespace SecByte.MockApi.Server.Handlers
     {
         public async Task<MockApiResponse> ProcessRequest(HttpRequest request)
         {
-            var requestMethod = request.GetMockApiMethod();
+            var requestMethod = new HttpMethod(request.Method);
             var requestPath = request.Path;
             var routeMatch = RouteCache.GetBestRouteMatch(requestMethod, requestPath);
 

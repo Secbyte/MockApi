@@ -120,3 +120,45 @@ A GET to /myapi/contacts/12 will return
     "userid": "12"
 }
 ```
+
+# Using a setup file to configure responses
+
+A configuration file can be provided to automatically register routes and responses when the mock api server starts.
+The application will look for a setup.json file in the config folder.
+
+The setup file contains an array of setup objects, each object defines an endpoint to mock by specifying 
+Path - the patch to mock, can contain placeholders
+Method - the method to respond to (e.g. GET, POST, etc.)
+Status - the status code to respond with
+Response - the data to respond with, can be any valid json value
+
+```JSON
+[
+    {
+        "Path": "/path/to/mock",
+        "Method": "GET",
+        "Status": 200,
+        "Response": {
+            "Type": "Example",
+            "Description": "The response can be any object or array that you want to return" 
+        }
+    }
+]
+```
+
+# Using docker
+The mock api is available as a docker container
+
+Docker CLI
+
+```docker run -p 4000:80 -v ./my/config:/app/config secbyte/mockapi:v2.3```
+
+Docker Compose snippet
+```
+mock-api:
+    image: secbyte/mockapi:v2.3
+    volumes:
+      - "./my/config:/app/config"
+    ports:
+      - "4000:80"
+```

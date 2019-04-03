@@ -1,0 +1,11 @@
+version: '3'
+services:
+  mock-api:
+    build: ../Server
+    image: secbyte/mockapi:v2.4
+    environment:
+      - ConfigurationSource=file:./data/config.json
+    volumes:
+      - ".:/app/data"
+    ports:
+      - "4000:80"

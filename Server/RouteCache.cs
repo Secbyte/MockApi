@@ -9,13 +9,7 @@ namespace SecByte.MockApi.Server
     {
         private static List<RouteSetup> _routeSetups = new List<RouteSetup>();
 
-        public static void LoadRoutes(string setupFile)
-        {
-            var routesDocument = System.IO.File.ReadAllText(setupFile);
-            LoadRoutesFromJson(routesDocument);
-        }
-
-        public static void LoadRoutesFromJson(string routesDocument)
+        public static void LoadRoutes(string routesDocument)
         {
             var routes = Newtonsoft.Json.JsonConvert.DeserializeObject<RouteSetupInfo[]>(routesDocument);
             RegisterRoutes(routes);

@@ -1,22 +1,23 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore;
+using Amazon.Lambda.APIGatewayEvents;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace SecByte.MockApi.Server
 {
-    public static class Program
+    public class LambdaEntryPoint : Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction
     {
-        public static void Main(string[] args) => CreateWebHostBuilder(args).Build().Run();
-
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        protected override void Init(IWebHostBuilder builder)
+        {
+            builder
+                .UseContentRoot(Directory.GetCurrentDirectory())
                 .ConfigureAppConfiguration(cb => cb.AddEnvironmentVariables())
                 .UseStartup<Startup>();
+        }
     }
 }

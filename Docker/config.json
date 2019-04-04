@@ -1,0 +1,10 @@
+[
+    {
+        "Path": "/test",
+        "Method": "GET",
+        "Status": 200,
+        "Response": {
+            "Message": "Hello, world"
+        }
+    }
+]

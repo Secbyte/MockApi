@@ -11,8 +11,7 @@ namespace SecByte.MockApi.Server.Handlers
         public async Task<MockApiResponse> ProcessRequest(HttpRequest request)
         {
             var routesDocument = await request.GetBodyAsText();
-
-            RouteCache.LoadRoutesFromJson(routesDocument);
+            RouteCache.LoadRoutes(routesDocument);
 
             return new MockApiResponse
             {

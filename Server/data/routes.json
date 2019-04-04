@@ -1,0 +1,20 @@
+[
+    {
+        "Path": "/test",
+        "Method": "GET",
+        "Status": 200,
+        "Response": "file:Sample{Id}.json"
+    },
+    {
+        "Path": "/test/{Id}",
+        "Method": "GET",
+        "Status": 200,
+        "Response": "file:Sample{Id}.json"
+    },
+    {
+        "Path": "/test",
+        "Method": "POST",
+        "Status": 200,
+        "Response": "file:Sample{Id}.json"
+    }
+]

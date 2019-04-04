@@ -29,7 +29,7 @@ namespace SecByte.MockApi.Server.Handlers
 
                 if(response.StartsWith("file:"))
                 {
-                    var templateFile = response.Split(":")[1];
+                    var templateFile = response.Substring("file:".Length);
                     try
                     {
                         response = await _fileReader.ReadContentsAsync(templateFile);

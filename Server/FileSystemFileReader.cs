@@ -16,6 +16,9 @@ namespace SecByte.MockApi.Server
 
         public Task<string> ReadContentsAsync(string file)
         {
+            var invalidChars = Path.GetInvalidFileNameChars();
+            foreach(var invalidChar in invalidChars)
+                file = file.Replace(invalidChar, '_');
             return System.IO.File.ReadAllTextAsync(Path.Combine(_basePath, file));
         }
     }

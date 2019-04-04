@@ -3,14 +3,19 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace SecByte.MockApi.Server.Handlers
 {
-    internal class BulkSetupHandler : IRequestHandler
+    internal class BulkSetupHandler : RequestHandler
     {
-        public async Task<MockApiResponse> ProcessRequest(HttpRequest request)
+        public BulkSetupHandler(RouteCache routeCache) : base(routeCache)
+        {            
+        }
+
+        public override async Task<MockApiResponse> ProcessRequest(IHttpRequestFeature request)
         {
-            var routesDocument = await request.GetBodyAsText();
+            var routesDocument = await request.Body.ReadAsTextAsync();
             RouteCache.LoadRoutes(routesDocument);
 
             return new MockApiResponse

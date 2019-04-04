@@ -2,12 +2,17 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace SecByte.MockApi.Server.Handlers
 {
-    internal class ValidationHandler : IRequestHandler
+    internal class ValidationHandler : RequestHandler    
     {
-        public Task<MockApiResponse> ProcessRequest(HttpRequest request)
+        public ValidationHandler(RouteCache routeCache) : base(routeCache)
+        {            
+        }
+
+        public override Task<MockApiResponse> ProcessRequest(IHttpRequestFeature request)
         {
             var requestMethod = request.GetMockApiMethod();
             var requestPath = request.Path;

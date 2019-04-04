@@ -1,21 +1,25 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Primitives;
 
 namespace SecByte.MockApi.Server
 {
     public static class HttpRequestExtensions
     {
-        public static MockApiAction GetMockApiAction(this HttpRequest request)
+        public static MockApiAction GetMockApiAction(this IHttpRequestFeature request)
         {
             Func<string, MockApiAction> parseAction = (s) => (MockApiAction)Enum.Parse(typeof(MockApiAction), s);
             const string header = "MockApi-Action";
             return request.Headers.ContainsKey(header) ? parseAction(request.Headers[header]) : MockApiAction.Call;
         }
 
-        public static HttpMethod GetMockApiMethod(this HttpRequest request)
+        public static HttpMethod GetMockApiMethod(this IHttpRequestFeature request)
         {
             const string header = "MockApi-Method";
             if (request.Headers.ContainsKey(header))
@@ -26,7 +30,7 @@ namespace SecByte.MockApi.Server
             return HttpMethod.Get;
         }
 
-        public static int GetMockApiStatus(this HttpRequest request)
+        public static int GetMockApiStatus(this IHttpRequestFeature request)
         {
             const string header = "MockApi-Status";
             if (request.Headers.ContainsKey(header))
@@ -37,16 +41,17 @@ namespace SecByte.MockApi.Server
             return 200;
         }
 
-        public static async Task<string> GetBodyAsText(this HttpRequest request)
+        public static Dictionary<string, StringValues> GetQuery(this IHttpRequestFeature request)
         {
-            if (request.ContentLength.GetValueOrDefault() > 0)
-            {
-                var buffer = new byte[(int)request.ContentLength];
-                await request.Body.ReadAsync(buffer, 0, buffer.Length);
-                return Encoding.UTF8.GetString(buffer);
-            }
+            return Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(request.QueryString);
+        }
 
-            return string.Empty;
+        public static Task<string> ReadAsTextAsync(this Stream stream)
+        {            
+            using(var streamReader = new StreamReader(stream))
+            {
+                return streamReader.ReadToEndAsync();
+            }
         }
     }
 }

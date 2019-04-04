@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 
 namespace SecByte.MockApi.Server
@@ -32,7 +34,7 @@ namespace SecByte.MockApi.Server
 
         public int WildcardCount => _wildcards.Count;
 
-        public string GetResponse(string body)
+        public string GetResponse(string body, Dictionary<string, StringValues> query, IHeaderDictionary headers)
         {
             var response = _routeSetup.Response;
             var placeholders = Regex.Matches(response, @"{([A-Za-z0-9\.\[\]]+)}");
@@ -45,13 +47,21 @@ namespace SecByte.MockApi.Server
                 {
                     response = response.Replace(placeholder.Value, _wildcards[key], StringComparison.InvariantCulture);
                 }
-                else
+                else if(query.ContainsKey(key))
+                {
+                    response = response.Replace(placeholder.Value, query[key].First(), StringComparison.InvariantCulture);
+                }                
+                else if(jsonObject != null && jsonObject.ContainsKey(key))
                 {
                     var valueFromBody = jsonObject.SelectToken(key);
                     if (valueFromBody != null)
                     {
                         response = response.Replace(placeholder.Value, valueFromBody.ToString(), StringComparison.InvariantCulture);
                     }
+                }
+                else if(headers.ContainsKey(key))
+                {
+                    response = response.Replace(placeholder.Value, headers[key].First(), StringComparison.InvariantCulture);
                 }
             }
 

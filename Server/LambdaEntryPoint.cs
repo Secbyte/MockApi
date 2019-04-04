@@ -18,6 +18,6 @@ namespace SecByte.MockApi.Server
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .ConfigureAppConfiguration(cb => cb.AddEnvironmentVariables())
                 .UseStartup<Startup>();
-        }
+        }        
     }
 }

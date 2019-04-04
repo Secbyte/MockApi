@@ -4,15 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Amazon.S3;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SecByte.MockApi.Server.Handlers;
 
 #pragma warning disable CA1822 // Members that do not access instance data can be marked as static
 namespace SecByte.MockApi.Server
@@ -26,6 +27,40 @@ namespace SecByte.MockApi.Server
 
         public IConfiguration Configuration { get; }
 
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services
+                .AddScoped<BulkSetupHandler>()
+                .AddScoped<HandlerFactory>()
+                .AddScoped<SetupHandler>()
+                .AddScoped<ValidationHandler>()
+                .AddScoped<WebRequestHandler>();       
+
+            var dataSource = Configuration.GetValue<string>("DataSource");
+            if (string.IsNullOrEmpty(dataSource) == false)
+            {
+                var dataSourceParts = dataSource.Split(":");
+                services.Configure<FileReaderOptions>(opt => opt.Root = dataSourceParts[1]);
+                switch (dataSourceParts[0])
+                {
+                    case "local":
+                        services.AddSingleton<IFileReader, FileSystemFileReader>();
+                        break;
+                    case "s3":
+                        services.AddAWSService<IAmazonS3>();                        
+                        services.AddSingleton<IFileReader, S3FileReader>();
+                        break;
+                    default:
+                        throw new NotSupportedException($"Data source {dataSourceParts[0]} is not supported");
+                }                
+            }
+
+            var routesFile = Configuration.GetValue<string>("RoutesFile");
+            services
+                .Configure<RouteCache.Options>(opt => opt.RoutesFile = routesFile)
+                .AddSingleton<RouteCache>();
+        }
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -33,54 +68,20 @@ namespace SecByte.MockApi.Server
                 app.UseDeveloperExceptionPage();
             }
 
-            var configSource = Configuration.GetValue<string>("ConfigurationSource");
-
-            if (string.IsNullOrEmpty(configSource) == false)
-            {
-                var configData = GetConfigData(configSource).GetAwaiter().GetResult();
-                RouteCache.LoadRoutes(configData);
-            }
-
             app.Run(async (context) =>
             {
-                var handler = Handlers.HandlerFactory.GetHandler(context.Request.GetMockApiAction());
-                var response = await handler.ProcessRequest(context.Request);
+                var routeCache = context.RequestServices.GetRequiredService<RouteCache>();
+                await routeCache.Initialise();
+                                
+                var handlerFactory = context.RequestServices.GetRequiredService<HandlerFactory>();
+                var requestInfo = context.Features.Get<IHttpRequestFeature>();
+                var handler = handlerFactory.GetHandler(requestInfo.GetMockApiAction());
+                var response = await handler.ProcessRequest(requestInfo);
                 context.Response.StatusCode = response.StatusCode;
                 context.Response.Headers.Add("content-type", response.ContentType);
                 context.Response.Headers.Add("access-control-allow-origin", "*");
                 await context.Response.WriteAsync(response.Payload);
             });
-        }
-
-        public async Task<string> GetConfigData(string configSource)
-        {
-            var configParts = configSource.Split(":");
-            switch (configParts[0])
-            {
-                case "file":
-                    return await System.IO.File.ReadAllTextAsync(configParts[1]);
-                case "s3":
-                    return await ReadFromS3(configParts[1], configParts[2]);
-                default:
-                    throw new NotSupportedException("config source not supported");
-            }
-        }
-
-        public async Task<string> ReadFromS3(string bucketName, string key)
-        {
-            var aws = Configuration.GetAWSOptions();
-            var s3Service = aws.CreateServiceClient<IAmazonS3>();
-
-            var s3Response = await s3Service.GetObjectAsync(bucketName, key);
-            if ((int)s3Response.HttpStatusCode != 200)
-            {
-                throw new FileLoadException($"Unable to retrieve the configuration document from {bucketName}:{key}");
-            }
-
-            using (var streamReader = new StreamReader(s3Response.ResponseStream))
-            {
-                return await streamReader.ReadToEndAsync();
-            }
-        }
+        }        
     }
 }

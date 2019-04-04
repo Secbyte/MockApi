@@ -1,22 +1,30 @@
 using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SecByte.MockApi.Server.Handlers
 {
-    internal static class HandlerFactory
+    internal class HandlerFactory
     {
-        public static IRequestHandler GetHandler(MockApiAction action)
+        private readonly IServiceProvider _serviceProvider;
+
+        public HandlerFactory(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
+        public RequestHandler GetHandler(MockApiAction action)
         {
             switch (action)
             {
                 case MockApiAction.Setup:
-                    return new SetupHandler();
+                    return _serviceProvider.GetService<SetupHandler>();
                 case MockApiAction.Validate:
-                    return new ValidationHandler();
+                    return _serviceProvider.GetService<ValidationHandler>();
                 case MockApiAction.Call:
-                    return new WebRequestHandler();
+                    return _serviceProvider.GetService<WebRequestHandler>();
                 case MockApiAction.BulkSetup:
-                    return new BulkSetupHandler();
+                    return _serviceProvider.GetService<BulkSetupHandler>();
                 default:
                     throw new NotSupportedException("Unsupported action type");
             }

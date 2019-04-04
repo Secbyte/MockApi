@@ -4,8 +4,9 @@ services:
     build: ../Server
     image: secbyte/mockapi:v2.4
     environment:
-      - ConfigurationSource=file:./data/config.json
+      - DataSource=local:./data
+      - RoutesFile=routes.json
     volumes:
-      - ".:/app/data"
+      - "../Server/data:/app/data"
     ports:
       - "4000:80"

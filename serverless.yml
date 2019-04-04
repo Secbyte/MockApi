@@ -21,7 +21,8 @@ functions:
   data-mock:
     handler: SecByte.MockApi.Server::SecByte.MockApi.Server.LambdaEntryPoint::FunctionHandlerAsync
     environment:
-      ConfigurationSource: s3:${self:provider.bucketName}:setup.json
+      DataSource: s3:${self:provider.bucketName}
+      RoutesFile: routes.json
     events:
       - http:
           path: /{proxy+}

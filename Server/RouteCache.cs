@@ -1,39 +1,58 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace SecByte.MockApi.Server
 {
-    internal static class RouteCache
+    internal class RouteCache
     {
-        private static List<RouteSetup> _routeSetups = new List<RouteSetup>();
+        private readonly List<RouteSetup> _routeSetups = new List<RouteSetup>();
+        private readonly IFileReader _fileReader;
+        private readonly Options _options;
 
-        public static void LoadRoutes(string routesDocument)
+        public RouteCache(IFileReader fileReader, IOptions<Options> options)
+        {
+            _fileReader = fileReader;
+            _options = options.Value;
+        }
+
+        public async Task Initialise()
+        {
+            if (string.IsNullOrEmpty(_options.RoutesFile) == false && _routeSetups.Any() == false)
+            {
+                System.Console.WriteLine(_options.RoutesFile);
+                LoadRoutes(await _fileReader.ReadContentsAsync(_options.RoutesFile));
+            }
+        }
+
+        public void LoadRoutes(string routesDocument)
         {
             var routes = Newtonsoft.Json.JsonConvert.DeserializeObject<RouteSetupInfo[]>(routesDocument);
             RegisterRoutes(routes);
         }
 
-        public static void RegisterRouteSteup(HttpMethod method, PathString path, string response, int statusCode)
+        public void RegisterRouteSteup(HttpMethod method, PathString path, string response, int statusCode)
         {
             _routeSetups.RemoveAll(r => r.Path == path && r.Method == method);
             _routeSetups.Add(new RouteSetup(method, path, response, statusCode));
         }
 
-        public static RouteSetup GetRouteSteup(HttpMethod method, PathString path)
+        public RouteSetup GetRouteSteup(HttpMethod method, PathString path)
         {
             return _routeSetups.SingleOrDefault(r => r.Path == path && r.Method == method);
         }
 
-        public static RouteMatch GetBestRouteMatch(HttpMethod method, PathString path)
+        public RouteMatch GetBestRouteMatch(HttpMethod method, PathString path)
         {
             return _routeSetups.Select(r => r.MatchesOn(method, path))
                     .OrderBy(r => r.WildcardCount)
                     .FirstOrDefault(rm => rm.Success);
         }
 
-        private static void RegisterRoutes(RouteSetupInfo[] routes)
+        private void RegisterRoutes(RouteSetupInfo[] routes)
         {
             foreach (var route in routes)
             {
@@ -41,6 +60,11 @@ namespace SecByte.MockApi.Server
                 var response = route.Response.ToString();
                 RegisterRouteSteup(method, route.Path, response, route.Status);
             }
+        }
+
+        public class Options
+        {
+            public string RoutesFile { get; set; }
         }
     }
 }

@@ -38,7 +38,7 @@ namespace SecByte.MockApi.Server
         {
             var response = _routeSetup.Response;
             var placeholders = Regex.Matches(response, @"{([A-Za-z0-9\.\[\]]+)}");
-            var jsonObject = BodyAsObject(body);
+            var payloadObjects = BodyAsObject(body);
 
             foreach (Match placeholder in placeholders)
             {
@@ -51,12 +51,16 @@ namespace SecByte.MockApi.Server
                 {
                     response = response.Replace(placeholder.Value, query[key].First(), StringComparison.InvariantCulture);
                 }                
-                else if(jsonObject != null && jsonObject.ContainsKey(key))
+                else if(payloadObjects.Any())
                 {
-                    var valueFromBody = jsonObject.SelectToken(key);
-                    if (valueFromBody != null)
+                    foreach(var obj in payloadObjects)
                     {
-                        response = response.Replace(placeholder.Value, valueFromBody.ToString(), StringComparison.InvariantCulture);
+                        var valueFromBody = obj.SelectToken(key);
+                        if (valueFromBody != null)
+                        {
+                            response = response.Replace(placeholder.Value, valueFromBody.ToString(), StringComparison.InvariantCulture);
+                            break;
+                        }
                     }
                 }
                 else if(headers.ContainsKey(key))
@@ -68,15 +72,12 @@ namespace SecByte.MockApi.Server
             return response;
         }
 
-        private static JObject BodyAsObject(string body)
+        private static JArray BodyAsObject(string body)
         {
-            if (string.IsNullOrEmpty(body))
-            {
-                #pragma warning disable S1168 // Incorrect warning
-                return null;
-            }
+            if (body.StartsWith('[') == false)
+                body = $"[{body}]";
 
-            return JObject.Parse(body);
+            return JArray.Parse(body);
         }
     }
 }

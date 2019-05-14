@@ -2,7 +2,7 @@ version: '3'
 services:
   mock-api:
     build: ../Server
-    image: secbyte/mockapi:v2.4
+    image: secbyte/mockapi:v2.5
     environment:
       - DataSource=local:./data
       - RoutesFile=routes.json

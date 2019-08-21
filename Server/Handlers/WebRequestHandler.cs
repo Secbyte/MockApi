@@ -49,7 +49,8 @@ namespace SecByte.MockApi.Server.Handlers
                 {
                     StatusCode = routeMatch.Setup.StatusCode,
                     Payload = response,
-                    ContentType = "application/json; charset=utf-8"
+                    ContentType = "application/json; charset=utf-8",
+                    Headers = routeMatch.Setup.Headers
                 };
             }
 

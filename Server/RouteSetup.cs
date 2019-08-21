@@ -12,14 +12,16 @@ namespace SecByte.MockApi.Server
         private readonly PathString _path;
         private readonly string _response;
         private readonly int _status;
+        private readonly Dictionary<string, string> _headers;
         private readonly List<(string path, string request)> _requests;
 
-        public RouteSetup(HttpMethod method, PathString path, string response, int status)
+        public RouteSetup(HttpMethod method, PathString path, string response, int status, Dictionary<string, string> headers)
         {
             _method = method;
             _path = path;
             _response = response;
             _status = status;
+            _headers = headers;
             _requests = new List<(string, string)>();
         }
 
@@ -30,6 +32,8 @@ namespace SecByte.MockApi.Server
         public string Response => _response;
 
         public int StatusCode => _status;
+
+        public Dictionary<string, string> Headers => _headers;
 
         public IEnumerable<(string path, string request)> Requests => _requests.ToList().AsReadOnly();
 

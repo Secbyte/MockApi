@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -36,8 +37,13 @@ namespace SecByte.MockApi.Server
 
         public void RegisterRouteSteup(HttpMethod method, PathString path, string response, int statusCode)
         {
+            RegisterRouteSteup(method, path, response, statusCode);
+        }
+
+        public void RegisterRouteSteup(HttpMethod method, PathString path, string response, int statusCode, Dictionary<string, string> headers)
+        {
             _routeSetups.RemoveAll(r => r.Path == path && r.Method == method);
-            _routeSetups.Add(new RouteSetup(method, path, response, statusCode));
+            _routeSetups.Add(new RouteSetup(method, path, response, statusCode, headers));
         }
 
         public RouteSetup GetRouteSteup(HttpMethod method, PathString path)
@@ -57,8 +63,8 @@ namespace SecByte.MockApi.Server
             foreach (var route in routes)
             {
                 var method = new HttpMethod(route.Method);
-                var response = route.Response.ToString();
-                RegisterRouteSteup(method, route.Path, response, route.Status);
+                var response = route.Response.ToString();                
+                RegisterRouteSteup(method, route.Path, response, route.Status, route.Headers);
             }
         }
 

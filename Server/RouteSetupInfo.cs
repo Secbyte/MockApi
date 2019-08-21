@@ -1,4 +1,4 @@
-using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace SecByte.MockApi.Server
 {
@@ -10,6 +10,13 @@ namespace SecByte.MockApi.Server
 
         public string Method { get; set; }
 
+        public Dictionary<string, string> Headers { get; set; }
+
         public object Response { get; set; }
+
+        public RouteSetupInfo() 
+        {
+            Headers = new Dictionary<string, string>();
+        }
     }
 }

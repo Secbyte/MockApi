@@ -79,7 +79,10 @@ namespace SecByte.MockApi.Server
                 var response = await handler.ProcessRequest(requestInfo);
                 context.Response.StatusCode = response.StatusCode;
                 context.Response.Headers.Add("content-type", response.ContentType);
-                context.Response.Headers.Add("access-control-allow-origin", "*");
+                
+                foreach(var header in response.Headers)                
+                    context.Response.Headers.Add(header.Key, header.Value);                
+
                 await context.Response.WriteAsync(response.Payload);
             });
         }        
